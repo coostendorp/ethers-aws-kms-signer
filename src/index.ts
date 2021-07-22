@@ -45,6 +45,10 @@ export class AwsKmsSigner extends ethers.Signer {
 
   async signTransaction(transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>): Promise<string> {
     const unsignedTx = await ethers.utils.resolveProperties(transaction);
+
+    // "from" key cannot be part of the serialized signable transaction
+    delete unsignedTx.from;
+
     const serializedTx = ethers.utils.serializeTransaction(<UnsignedTransaction>unsignedTx);
     const transactionSignature = await this._signDigest(ethers.utils.keccak256(serializedTx));
     return ethers.utils.serializeTransaction(<UnsignedTransaction>unsignedTx, transactionSignature);
